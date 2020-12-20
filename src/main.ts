@@ -14,6 +14,6 @@ async function bootstrap() {
     transform: true,
   }))
 
-  await app.listen(7200)
+  await app.listen(process.env.PORT || 7200)
 }
 bootstrap()
