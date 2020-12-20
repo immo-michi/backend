@@ -1,6 +1,11 @@
 # compiled output
 /dist
 /node_modules
+src/schema.gql
+
+.env
+pg_data
+ormconfig.json
 
 # Logs
 logs

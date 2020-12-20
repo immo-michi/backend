@@ -1,0 +1,36 @@
+version: "3"
+services:
+  #backend:
+  #  build: .
+  #  command: yarn start:dev
+  #  volumes:
+  #    - ./:/usr/src/app
+  #  environment:
+  #    TYPEORM_CONNECTION: postgres
+  #    TYPEORM_HOST: db
+  #    TYPEORM_USERNAME: rectag
+  #    TYPEORM_PASSWORD: rectag
+  #    TYPEORM_DATABASE: rectag
+  #    TYPEORM_PORT: 5432
+  #    MAILER_URI: smtp://localhost:1025
+  #  ports:
+  #    - "5000:3000"
+
+  # admin:
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: rectag
+  #     PGADMIN_DEFAULT_PASSWORD: rectag
+  #     PGADMIN_CONFIG_UPGRADE_CHECK_ENABLED: "False"
+  #   ports:
+  #     - 5051:80
+
+  db:
+    image: postgres:10-alpine
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: immo
+      POSTGRES_PASSWORD: immo
+    ports:
+      - "${TYPEORM_PORT}:5432"

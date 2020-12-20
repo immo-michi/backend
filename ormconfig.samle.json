@@ -1,0 +1,17 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "immo",
+  "password": "immo",
+  "database": "immo",
+  "entities": ["src/**/*.entity.ts"],
+  "synchronize": true,
+  "migrationsTableName": "nest_migrations",
+  "migrations": [
+    "src/migrations/*.ts"
+  ],
+  "cli": {
+    "migrationsDir": "src/migrations"
+  }
+}
