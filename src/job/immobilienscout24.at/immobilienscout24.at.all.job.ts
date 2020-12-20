@@ -1,5 +1,6 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core'
 import { Injectable } from '@nestjs/common'
+import { Cron } from '@nestjs/schedule'
 import 'isomorphic-fetch'
 import { LoggerService } from '../../service/logger.service'
 import { Immobilienscout24At } from './immobilienscout24.at'
@@ -26,6 +27,9 @@ export class Immobilienscout24AtAllJob {
     })
   }
 
+  @Cron('0 0 2 * * *', {
+    timeZone: 'Europe/Vienna'
+  })
   public async execute(): Promise<boolean> {
     this.logger.log('extract all pages')
 

@@ -3,10 +3,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
+import { ScheduleModule } from '@nestjs/schedule'
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
 import { Request } from 'express-serve-static-core'
 import { IncomingHttpHeaders } from 'http'
-import { ScheduleModule } from 'nest-schedule'
 import { join } from 'path'
 import { types } from 'pg'
 import { entities } from './entity'
@@ -83,7 +83,5 @@ export const imports = [
     }),
   }),
   TypeOrmModule.forFeature(entities),
-  ScheduleModule.register({
-    retryInterval: 15000,
-  }),
+  ScheduleModule.forRoot(),
 ]
