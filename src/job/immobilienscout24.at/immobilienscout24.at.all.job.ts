@@ -1,4 +1,3 @@
-import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core'
 import { Injectable } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import 'isomorphic-fetch'
@@ -8,32 +7,25 @@ import { Hit } from './list.query'
 
 @Injectable()
 export class Immobilienscout24AtAllJob {
-  private client: ApolloClient<unknown>
-
   constructor(
     private readonly hitService: Immobilienscout24At,
     private readonly logger: LoggerService,
   ) {
     this.logger.setContext(this.constructor.name)
-    this.client = new ApolloClient({
-      cache: new InMemoryCache({
-        possibleTypes: {
-          Listing: ['RegularListing', 'SmartPremiumListing']
-        }
-      }),
-      link: createHttpLink({
-        uri: 'https://www.immobilienscout24.at/portal/graphql',
-      }),
-    })
   }
 
   @Cron('0 0 2 * * *', {
-    timeZone: 'Europe/Vienna'
+    timeZone: 'Europe/Vienna',
   })
   public async execute(): Promise<boolean> {
     this.logger.log('extract all pages')
 
-    const urls = ['/regional/burgenland/immobilie-kaufen']
+    const urls = [
+      '/regional/burgenland/immobilie-kaufen',
+      '/regional/niederoesterreich/immobilie-kaufen',
+    ]
+
+    const deleteBefore = new Date(Date.now() - 60000)
 
     for(const url of urls) {
       const result = await this.hitService.list(url)
@@ -45,6 +37,9 @@ export class Immobilienscout24AtAllJob {
 
       await this.processUrls(otherUrls)
     }
+
+    // clean out all entries that are older than
+    await this.hitService.deleteBefore(deleteBefore)
 
     return false
   }

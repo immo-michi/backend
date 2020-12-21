@@ -1,4 +1,3 @@
-import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core'
 import { Injectable } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import 'isomorphic-fetch'
@@ -8,23 +7,11 @@ import { Hit } from './list.query'
 
 @Injectable()
 export class Immobilienscout24AtJob {
-  private client: ApolloClient<unknown>
-
   constructor(
     private readonly hitService: Immobilienscout24At,
     private readonly logger: LoggerService,
   ) {
     this.logger.setContext(this.constructor.name)
-    this.client = new ApolloClient({
-      cache: new InMemoryCache({
-        possibleTypes: {
-          Listing: ['RegularListing', 'SmartPremiumListing']
-        }
-      }),
-      link: createHttpLink({
-        uri: 'https://www.immobilienscout24.at/portal/graphql',
-      }),
-    })
   }
 
   @Cron('0 15 9-21 * * *', {
@@ -33,7 +20,10 @@ export class Immobilienscout24AtJob {
   public async execute(): Promise<boolean> {
     this.logger.log('extract first page')
 
-    const urls = ['/regional/burgenland/immobilie-kaufen']
+    const urls = [
+      '/regional/burgenland/immobilie-kaufen',
+      '/regional/niederoesterreich/immobilie-kaufen',
+    ]
 
     for(const url of urls) {
       const result = await this.hitService.list(url)

@@ -38,6 +38,15 @@ export class Immobilienscout24At {
     })
   }
 
+  public async deleteBefore(before: Date): Promise<void> {
+    this.logger.log(`delete all properties before ${before.toISOString()}`)
+
+    await this.propertyRepository.createQueryBuilder()
+      .softDelete()
+      .where(`updated < NOW() - INTERVAL '${Math.ceil((Date.now() - before.getTime()) / 1000)} seconds'`)
+      .execute()
+  }
+
   public async list(URL: string): Promise<GetDataByURL> {
     this.logger.log(`process list ${URL}`)
 
@@ -75,60 +84,88 @@ export class Immobilienscout24At {
       property.sourceId = hit.exposeId
       property.source = Immobilienscout24At.SOURCE
 
-      property.name = stripHtml(hit.headline).result
-      property.address = hit.addressString
-      property.link = `https://www.immobilienscout24.at${hit.links.targetURL}`
+      try {
+        const gecodeResult = await this.getLocation(hit.addressString)
 
-      const gecodeResult = await this.googleMaps.geocode({
-        params: {
-          key: this.configService.get('GOOGLE_MAPS_API_KEY'),
-          address: hit.addressString,
-        }
-      })
+        property.lat = gecodeResult.lat
+        property.lng = gecodeResult.lng
+      } catch (e) {
+        this.logger.catch(e, 'failed to extract location')
 
-      property.lat = gecodeResult.data.results[0]?.geometry.location.lat
-      property.lng = gecodeResult.data.results[0]?.geometry.location.lng
-
-      if (hit.realtorContact) {
-        property.contact.company = hit.realtorContact.company
-        property.contact.name = hit.realtorContact.name
+        property.lat = 0
+        property.lng = 0
       }
-
-      property.images = []
-
-      property.tags = hit.badges.map(badge => badge.label)
-
-      if (hit.primaryPictureImageProps) {
-        property.images.push(hit.primaryPictureImageProps.src)
-      }
-
-      if (hit.picturesImageProps) {
-        hit.picturesImageProps.forEach(img => {
-          property.images.push(img.src)
-        })
-      }
-
-      hit.mainKeyFacts.forEach(fact => {
-        property.values[fact.label] = fact.value
-
-        if (fact.label === 'Fläche') {
-          property.area = numberExtractor(fact.value)
-        }
-      })
-
-      hit.priceKeyFacts.forEach(fact => {
-        property.values[fact.label || 'Preis'] = fact.value
-
-        if (!fact.label) {
-          // assume this is the price!
-          property.price = numberExtractor(fact.value)
-
-        }
-      })
-
-
     }
 
+    property.address = hit.addressString
+    property.name = stripHtml(hit.headline).result
+    property.link = `https://www.immobilienscout24.at${hit.links.targetURL}`
+
+    if (hit.realtorContact) {
+      property.contact.company = hit.realtorContact.company
+      property.contact.name = hit.realtorContact.name
+    }
+
+    property.images = []
+
+    property.tags = hit.badges.map(badge => badge.label)
+
+    if (hit.primaryPictureImageProps) {
+      property.images.push(hit.primaryPictureImageProps.src)
+    }
+
+    if (hit.picturesImageProps) {
+      hit.picturesImageProps.forEach(img => {
+        property.images.push(img.src)
+      })
+    }
+
+    property.area = 0
+
+    hit.mainKeyFacts.forEach(fact => {
+      property.values[fact.label] = fact.value
+
+      if (fact.label === 'Fläche') {
+        property.area = numberExtractor(fact.value)
+      }
+    })
+
+    property.price = 0
+
+    hit.priceKeyFacts.forEach(fact => {
+      property.values[fact.label || 'Preis'] = fact.value
+
+      if (!fact.label) {
+        // assume this is the price!
+        property.price = numberExtractor(fact.value)
+
+      }
+    })
+
     return await this.propertyRepository.save(property)
+  }
+
+  private async getLocation(address: string): Promise<{lat: number; lng: number}> {
+    const result = await this.propertyRepository.createQueryBuilder('p')
+      .select('p.lat', 'lat')
+      .addSelect('p.lng', 'lng')
+      .withDeleted()
+      .where('p.address = :address', { address })
+      .andWhere('p.lat != 0 AND p.lng != 0')
+      .getRawOne()
+
+    if (result) {
+      return result
+    }
+
+    const gecodeResult = await this.googleMaps.geocode({
+      params: {
+        key: this.configService.get('GOOGLE_MAPS_API_KEY'),
+        address,
+      },
+      timeout: 500,
+    })
+
+    return gecodeResult.data.results[0]?.geometry.location
   }
 }
