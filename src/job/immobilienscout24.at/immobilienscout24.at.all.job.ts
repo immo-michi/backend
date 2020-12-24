@@ -25,7 +25,8 @@ export class Immobilienscout24AtAllJob {
       '/regional/niederoesterreich/immobilie-kaufen',
     ]
 
-    const deleteBefore = new Date(Date.now() - 3600000)
+    // older than one day!
+    const deleteBefore = new Date(Date.now() - 60 * 60 * 24 * 1000)
 
     for(const url of urls) {
       const result = await this.hitService.list(url)

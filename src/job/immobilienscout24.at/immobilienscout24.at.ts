@@ -43,7 +43,7 @@ export class Immobilienscout24At {
 
     await this.propertyRepository.createQueryBuilder()
       .softDelete()
-      .where(`updated < NOW() - INTERVAL '${Math.ceil((Date.now() - before.getTime()) / 1000)} seconds'`)
+      .where('updated < :before', { before })
       .execute()
   }
 
