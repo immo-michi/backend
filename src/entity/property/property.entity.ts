@@ -3,12 +3,15 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
 import { PropertyContactEmbedded } from './property.contact.embedded'
 
 @Entity('property')
+@Index(['source', 'sourceId'], { unique: true })
+@Index(['lat', 'lng'])
 export class PropertyEntity {
   @PrimaryGeneratedColumn()
   id: number
@@ -23,15 +26,19 @@ export class PropertyEntity {
   address: string
 
   @Column({ type: 'decimal' })
+  @Index()
   lat: number
 
   @Column({ type: 'decimal' })
+  @Index()
   lng: number
 
   @Column({ type: 'decimal' })
+  @Index()
   price: number
 
   @Column({ type: 'decimal' })
+  @Index()
   area: number
 
   @Column(() => PropertyContactEmbedded)

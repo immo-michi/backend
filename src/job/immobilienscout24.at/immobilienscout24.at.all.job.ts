@@ -23,6 +23,13 @@ export class Immobilienscout24AtAllJob {
     const urls = [
       '/regional/burgenland/immobilie-kaufen',
       '/regional/niederoesterreich/immobilie-kaufen',
+      '/regional/wien/immobilie-kaufen',
+      '/regional/steiermark/immobilie-kaufen',
+      '/regional/oberoesterreich/immobilie-kaufen',
+      '/regional/salzburg/immobilie-kaufen',
+      '/regional/kaernten/immobilie-kaufen',
+      '/regional/tirol/immobilie-kaufen',
+      '/regional/vorarlberg/immobilie-kaufen',
     ]
 
     // older than one day!
