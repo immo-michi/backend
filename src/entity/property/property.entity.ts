@@ -26,11 +26,9 @@ export class PropertyEntity {
   address: string
 
   @Column({ type: 'decimal' })
-  @Index()
   lat: number
 
   @Column({ type: 'decimal' })
-  @Index()
   lng: number
 
   @Column({ type: 'decimal' })
@@ -71,5 +69,6 @@ export class PropertyEntity {
   updated: Date
 
   @DeleteDateColumn()
+  @Index()
   deleted?: Date
 }
