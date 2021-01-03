@@ -9,7 +9,7 @@
   "synchronize": true,
   "migrationsTableName": "nest_migrations",
   "migrations": [
-    "src/migrations/*.ts"
+    "src/migrations/**/*.ts"
   ],
   "cli": {
     "migrationsDir": "src/migrations"

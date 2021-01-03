@@ -88,7 +88,7 @@ export const imports = [
       entities,
       migrationsTableName: 'nest_migrations',
       migrations: [
-        `${__dirname}/**/migrations/**{.ts,.js}`,
+        `${__dirname}/**/migrations/**/*{.ts,.js}`,
       ],
       migrationsRun: configService.get<boolean>('TYPEORM_RUN_MIGRATIONS', false),
     }),
