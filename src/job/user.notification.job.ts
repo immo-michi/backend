@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
@@ -17,6 +18,7 @@ export class UserNotificationJob {
     @InjectRepository(UserNotificationEntity)
     private readonly notificationRepository: Repository<UserNotificationEntity>,
     private readonly propertySearchService: PropertySearchService,
+    private readonly mailerService: MailerService,
   ) {
     this.logger.setContext(this.constructor.name)
   }
@@ -42,11 +44,56 @@ export class UserNotificationJob {
   }
 
   private async handleNotification(notification: UserNotificationEntity): Promise<void> {
-    // TODO
-    const properties = await this.propertySearchService.search(notification.filter, {
+    const [properties, total] = await this.propertySearchService.search(notification.filter, {
       offset: 0,
       limit: 100,
     })
 
+    if (total === 0) {
+      return
+    }
+
+    await this
+      .mailerService
+      .sendMail({
+        to: 'michael.schramm@gmail.com',
+        subject: 'IMMO Michi hat neue Immobilien gefunden!',
+        text: 'Please check the HTML version of this email',
+        html: `
+        <h1>Es gibt ${total} neue Immobilien</h1>
+        <table>
+          <thead>
+            <tr>
+              <th> </th>
+              <th>Bezeichnung</th>
+              <th>Fläche</th>
+              <th>Preis</th>
+              <th> </th>
+            </tr>
+          </thead>
+          <tbody>
+          ${properties.map(property => `
+            <tr>
+              <td><img src="${property.images[0]}" width="200" /></td>
+              <td>${property.name}</td>
+              <td>${property.area}m<sup>2</sup></td>
+              <td>${property.price}€</td>
+              <td>
+                <a href="${property.link}">
+                  ${property.source}
+                </a>
+              </td>
+            </tr>`)}
+          </tbody>
+        </table>
+        <br /><br /><br />
+        <p>
+          Suche wurde nach folgenden Kriterien durchgeführt: ${JSON.stringify(notification.filter)}
+        </p>
+          `,
+      })
+
+
+    console.log('found entries!!', total)
   }
 }

@@ -29,11 +29,17 @@ export class PropertySearchService {
       })
     }
 
-    if (filter.price) {
+    if (filter.addedSince) {
+      qb.andWhere(
+        'p.created >= :addedSince',
+      ).setParameters({
+        addedSince: new Date(Date.now() - filter.addedSince * 1000),
+      })
+    }
+
+    if (filter.price && (filter.price.min || filter.price.max)) {
       qb.andWhere(
         new Brackets(qb => {
-          qb.where('1 = 1') // tautology condition to never have empty brackets
-
           if (filter.price.min) {
             qb.andWhere('p.price >= :priceMin', {
               priceMin: filter.price.min,
@@ -50,11 +56,9 @@ export class PropertySearchService {
     }
 
 
-    if (filter.area) {
+    if (filter.area && (filter.area.min || filter.area.max)) {
       qb.andWhere(
         new Brackets(qb => {
-          qb.where('1 = 1') // tautology condition to never have empty brackets
-
           if (filter.area.min) {
             qb.andWhere('p.area >= :areaMin', {
               areaMin: filter.area.min,
