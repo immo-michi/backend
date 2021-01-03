@@ -1,10 +1,12 @@
 export const numberExtractor = (any: string): number => {
-  let value: any
+  let value: any = any
 
   if (any.includes('-')) {
     value = any.split('-').pop()
-  } else {
-    value = any
+  }
+
+  if (any.includes('–')) {
+    value = any.split('–').pop()
   }
 
   value = value.replace(/[,.](\d\d)$/ig, 'D$1')
