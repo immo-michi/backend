@@ -21,6 +21,7 @@
   "dependencies": {
     "@apollo/client": "^3.3.6",
     "@googlemaps/google-maps-services-js": "^3.1.13",
+    "@nestjs-modules/mailer": "^1.5.1",
     "@nestjs/common": "^7.0.0",
     "@nestjs/config": "^0.6.1",
     "@nestjs/core": "^7.0.0",
@@ -45,6 +46,7 @@
     "graphql-tools": "^7.0.2",
     "ioredis": "^4.19.4",
     "isomorphic-fetch": "^3.0.0",
+    "nodemailer": "^6.4.17",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "pg": "^8.5.1",

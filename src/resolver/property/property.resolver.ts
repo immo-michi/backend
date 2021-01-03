@@ -45,4 +45,17 @@ export class PropertyResolver {
 
     return new PropertySourceModel(property)
   }
+
+  @ResolveField(() => [Number])
+  public async favoriteListIds(
+    @Parent() parent: PropertyModel,
+    @Context('cache') cache: ContextCache,
+  ): Promise<number[]> {
+    const property = await cache.get<PropertyEntity>(
+      cache.getCacheKey(PropertyEntity.name, parent.id)
+    )
+
+    // TODO load lists property is part of!
+    return []
+  }
 }

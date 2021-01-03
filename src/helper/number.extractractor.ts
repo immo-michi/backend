@@ -7,8 +7,7 @@ export const numberExtractor = (any: string): number => {
     value = any
   }
 
-  value = value.replace(/[^\d.,]/ig, '')
-  value = value.replace(/[,.]\d\d$/ig, 'D')
+  value = value.replace(/[,.](\d\d)$/ig, 'D$1')
   value = value.replace(/[^\dD]/ig, '')
   value = value.replace(/[D]/ig, '.')
 

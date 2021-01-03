@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { Cron } from '@nestjs/schedule'
 import 'isomorphic-fetch'
 import { LoggerService } from '../../service/logger.service'
@@ -10,6 +11,7 @@ export class Immobilienscout24AtAllJob {
   constructor(
     private readonly hitService: Immobilienscout24At,
     private readonly logger: LoggerService,
+    private readonly configService: ConfigService,
   ) {
     this.logger.setContext(this.constructor.name)
   }
@@ -17,6 +19,15 @@ export class Immobilienscout24AtAllJob {
   @Cron('0 0 2 * * *', {
     timeZone: 'Europe/Vienna',
   })
+  public async cron(): Promise<boolean> {
+    if (this.configService.get('DISABLE_IMPORT', false)) {
+      this.logger.log('cron is disabled DISABLE_IMPORT')
+      return
+    }
+
+    return await this.execute()
+  }
+
   public async execute(): Promise<boolean> {
     this.logger.log('extract all pages')
 

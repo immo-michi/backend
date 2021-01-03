@@ -1,3 +1,4 @@
+import { MailerModule, MailerOptions } from '@nestjs-modules/mailer'
 import { HttpModule } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
@@ -27,6 +28,16 @@ export const imports = [
         issuer: configService.get('JWT_ISSUER', 'immo.ms07.at'),
       },
     })
+  }),
+  MailerModule.forRootAsync({
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: (configService: ConfigService): MailerOptions => ({
+      transport: configService.get('MAILER_URI','smtp://localhost:1025'),
+      defaults: {
+        from: configService.get('MAILER_FROM', '"Immo Michi" <noreply@local>'),
+      },
+    }),
   }),
   GraphQLModule.forRoot({
     debug: process.env.NODE_ENV !== 'production',
