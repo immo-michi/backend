@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
-import { SearchPropertyFilter } from '../../../../frontend/graphql/query/search.property.query'
+import { PropertySearchFilterInput } from '../../model/property/property.search.filter.input'
 import { UserEntity } from './user.entity'
 
 @Entity('user_notification')
@@ -14,5 +14,5 @@ export class UserNotificationEntity {
   email: string
 
   @Column({ type: 'json' })
-  filter: SearchPropertyFilter
+  filter: PropertySearchFilterInput
 }
