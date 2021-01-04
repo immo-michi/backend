@@ -1,15 +1,17 @@
 export const numberExtractor = (any: string): number => {
   let value: any = any
 
-  if (any.includes('-')) {
-    value = any.split('-').pop()
+  if (value.includes('-')) {
+    value = value.split('-').pop()
   }
 
-  if (any.includes('–')) {
-    value = any.split('–').pop()
+  if (value.includes('–')) {
+    value = value.split('–').pop()
   }
 
-  value = value.replace(/[,.](\d\d)$/ig, 'D$1')
+  value = value.replace('ab ', '')
+
+  value = value.replace(/[,.](\d\d)($|\s)/ig, 'D$1')
   value = value.replace(/[^\dD]/ig, '')
   value = value.replace(/[D]/ig, '.')
 
