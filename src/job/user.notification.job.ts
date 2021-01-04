@@ -56,7 +56,7 @@ export class UserNotificationJob {
     await this
       .mailerService
       .sendMail({
-        to: 'michael.schramm@gmail.com',
+        to: notification.email,
         subject: 'IMMO Michi hat neue Immobilien gefunden!',
         text: 'Please check the HTML version of this email',
         html: `
