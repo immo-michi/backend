@@ -31,33 +31,29 @@ export class Immobilienscout24AtJob {
   public async execute(): Promise<boolean> {
     this.logger.log('extract first page')
 
-    const urls = [
-      '/regional/burgenland/immobilie-kaufen',
-      '/regional/niederoesterreich/immobilie-kaufen',
-      '/regional/wien/immobilie-kaufen',
-      '/regional/steiermark/immobilie-kaufen',
-      '/regional/oberoesterreich/immobilie-kaufen',
-      '/regional/salzburg/immobilie-kaufen',
-      '/regional/kaernten/immobilie-kaufen',
-      '/regional/tirol/immobilie-kaufen',
-      '/regional/vorarlberg/immobilie-kaufen',
-    ]
-
-    for(const url of urls) {
-      const result = await this.hitService.list(url)
-
-      await this.processHits(result.getDataByURL.results.hits)
-    }
+    await this.processType('haus', 'haus-kaufen')
+    await this.processType('grund', 'grundstueck-kaufen')
+    await this.processType('wohnung', 'wohnung-kaufen')
 
     return false
   }
 
-  private async processHits(hits: Hit[]): Promise<void> {
+  private async processType(type: string, urlPart: string): Promise<void> {
+    const urls = this.hitService.buildUrls(urlPart)
+
+    for(const url of urls) {
+      const result = await this.hitService.list(url)
+
+      await this.processHits(result.getDataByURL.results.hits, type)
+    }
+  }
+
+  private async processHits(hits: Hit[], type: string): Promise<void> {
     await Promise.all(
       hits
         .map(
           hit => this.hitService
-            .process(hit)
+            .process(hit, type)
             .catch(e => this.logger.catch(e, `failed to process expose ${hit.exposeId}`))
         )
     )

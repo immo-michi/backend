@@ -38,6 +38,22 @@ export class Immobilienscout24At {
     })
   }
 
+  public buildUrls(type = 'immobile-kaufen'): string[] {
+    const areas = [
+      'burgenland',
+      'niederoesterreich',
+      'wien',
+      'steiermark',
+      'oberoesterreich',
+      'salzburg',
+      'kaernten',
+      'tirol',
+      'vorarlberg',
+    ]
+
+    return areas.map(area => `/regional/${area}/${type}`)
+  }
+
   public async deleteBefore(before: Date): Promise<void> {
     this.logger.log(`delete all properties before ${before.toISOString()}`)
 
@@ -68,7 +84,7 @@ export class Immobilienscout24At {
     return null
   }
 
-  public async process(hit: Hit): Promise<PropertyEntity> {
+  public async process(hit: Hit, type?: string): Promise<PropertyEntity> {
     // load more information from page and extract "IS24AT.expose" json string!
     this.logger.log(`process expose ${hit.exposeId}`)
 
@@ -95,6 +111,10 @@ export class Immobilienscout24At {
         property.lat = 0
         property.lng = 0
       }
+    }
+
+    if (type) {
+      property.type = type
     }
 
     property.address = hit.addressString

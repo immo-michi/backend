@@ -22,6 +22,9 @@ export class PropertyEntity {
   @Column({ nullable: true })
   description: string
 
+  @Column({ nullable: true })
+  type: string
+
   @Column()
   address: string
 

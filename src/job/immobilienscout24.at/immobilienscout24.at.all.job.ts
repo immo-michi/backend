@@ -31,31 +31,12 @@ export class Immobilienscout24AtAllJob {
   public async execute(): Promise<boolean> {
     this.logger.log('extract all pages')
 
-    const urls = [
-      '/regional/burgenland/immobilie-kaufen',
-      '/regional/niederoesterreich/immobilie-kaufen',
-      '/regional/wien/immobilie-kaufen',
-      '/regional/steiermark/immobilie-kaufen',
-      '/regional/oberoesterreich/immobilie-kaufen',
-      '/regional/salzburg/immobilie-kaufen',
-      '/regional/kaernten/immobilie-kaufen',
-      '/regional/tirol/immobilie-kaufen',
-      '/regional/vorarlberg/immobilie-kaufen',
-    ]
-
     // older than one day!
     const deleteBefore = new Date(Date.now() - 60 * 60 * 24 * 1000)
 
-    for(const url of urls) {
-      const result = await this.hitService.list(url)
-
-      await this.processHits(result.getDataByURL.results.hits)
-
-      const otherUrls = [...result.getDataByURL.results.pagination.all]
-      otherUrls.shift()
-
-      await this.processUrls(otherUrls)
-    }
+    await this.processType('haus', 'haus-kaufen')
+    await this.processType('grund', 'grundstueck-kaufen')
+    await this.processType('wohnung', 'wohnung-kaufen')
 
     // clean out all entries that are older than
     await this.hitService.deleteBefore(deleteBefore)
@@ -63,22 +44,41 @@ export class Immobilienscout24AtAllJob {
     return false
   }
 
-  private async processHits(hits: Hit[]): Promise<void> {
+  private async processType(type: string, urlPart: string): Promise<void> {
+    const urls = this.hitService.buildUrls(urlPart)
+
+    for(const url of urls) {
+      try {
+        const result = await this.hitService.list(url)
+
+        await this.processHits(result.getDataByURL.results.hits, type)
+
+        const otherUrls = [...result.getDataByURL.results.pagination.all]
+        otherUrls.shift()
+
+        await this.processUrls(otherUrls, type)
+      } catch (e) {
+        this.logger.catch(e, `failed to process url ${url}`)
+      }
+    }
+  }
+
+  private async processHits(hits: Hit[], type: string): Promise<void> {
     await Promise.all(
       hits
         .map(
           hit => this.hitService
-            .process(hit)
+            .process(hit, type)
             .catch(e => this.logger.catch(e, `failed to process expose ${hit.exposeId}`))
         )
     )
   }
 
-  private async processUrls(urls: string[]): Promise<void> {
+  private async processUrls(urls: string[], type: string): Promise<void> {
     for(const url of urls) {
       const result = await this.hitService.list(url)
 
-      await this.processHits(result.getDataByURL.results.hits)
+      await this.processHits(result.getDataByURL.results.hits, type)
     }
   }
 }

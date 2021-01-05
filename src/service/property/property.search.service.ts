@@ -29,6 +29,14 @@ export class PropertySearchService {
       })
     }
 
+    if (filter.type) {
+      qb.andWhere(
+        'p.type IN (:...type)',
+      ).setParameters({
+        type: filter.type,
+      })
+    }
+
     if (filter.addedSince) {
       qb.andWhere(
         'p.created >= :addedSince',

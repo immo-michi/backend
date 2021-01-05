@@ -6,6 +6,9 @@ export class PropertyModel {
   @Field(() => ID)
   id: number
 
+  @Field({ nullable: true })
+  readonly type: string
+
   @Field()
   readonly name: string
 
@@ -38,6 +41,7 @@ export class PropertyModel {
     this.name = entity.name
     this.description = entity.description
     this.area = entity.area
+    this.type = entity.type
     this.price = entity.price
     this.images = entity.images || []
     this.tags = entity.tags || []
