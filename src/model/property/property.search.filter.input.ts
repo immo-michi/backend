@@ -10,7 +10,7 @@ export class PropertySearchFilterInput {
   @Field({ nullable: true })
   addedSince?: number
 
-  @Field({ nullable: true })
+  @Field(() => [String], { nullable: true })
   type?: string[]
 
   @Field(() => NumberFilterInput, { nullable: true })
