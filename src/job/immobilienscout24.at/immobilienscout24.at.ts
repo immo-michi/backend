@@ -92,7 +92,8 @@ export class Immobilienscout24At {
       where: {
         source: Immobilienscout24At.SOURCE,
         sourceId: hit.exposeId,
-      }
+      },
+      withDeleted: true
     })
 
     if (!property) {
@@ -103,14 +104,16 @@ export class Immobilienscout24At {
       try {
         const gecodeResult = await this.getLocation(hit.addressString)
 
-        property.lat = gecodeResult.lat
-        property.lng = gecodeResult.lng
+        property.lat = gecodeResult?.lat || 0
+        property.lng = gecodeResult?.lng || 0
       } catch (e) {
         this.logger.catch(e, 'failed to extract location')
 
         property.lat = 0
         property.lng = 0
       }
+    } else {
+      property.deleted = undefined
     }
 
     if (type) {

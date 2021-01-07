@@ -28,18 +28,26 @@ export class Immobilienscout24AtAllJob {
     return await this.execute()
   }
 
+  @Cron('0 0 3 * * *', {
+    timeZone: 'Europe/Vienna',
+  })
+  public async deleteOldCron(): Promise<boolean> {
+    // older than one day!
+    const deleteBefore = new Date(Date.now() - 60 * 60 * 24 * 1000)
+
+    // clean out all entries that are older than
+    await this.hitService.deleteBefore(deleteBefore)
+
+    return false
+  }
+
   public async execute(): Promise<boolean> {
     this.logger.log('extract all pages')
 
-    // older than one day!
-    const deleteBefore = new Date(Date.now() - 60 * 60 * 24 * 1000)
 
     await this.processType('haus', 'haus-kaufen')
     await this.processType('grund', 'grundstueck-kaufen')
     await this.processType('wohnung', 'wohnung-kaufen')
-
-    // clean out all entries that are older than
-    await this.hitService.deleteBefore(deleteBefore)
 
     return false
   }
