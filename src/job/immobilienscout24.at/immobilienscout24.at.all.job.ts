@@ -32,8 +32,8 @@ export class Immobilienscout24AtAllJob {
     timeZone: 'Europe/Vienna',
   })
   public async deleteOldCron(): Promise<boolean> {
-    // older than one day!
-    const deleteBefore = new Date(Date.now() - 60 * 60 * 24 * 1000)
+    // older than one week!
+    const deleteBefore = new Date(Date.now() - 7 * 60 * 60 * 24 * 1000)
 
     // clean out all entries that are older than
     await this.hitService.deleteBefore(deleteBefore)
