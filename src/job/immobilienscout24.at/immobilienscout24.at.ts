@@ -165,6 +165,8 @@ export class Immobilienscout24At {
       }
     })
 
+    property.updated = new Date()
+
     return await this.propertyRepository.save(property)
   }
 
