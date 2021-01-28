@@ -11,7 +11,7 @@ export const numberExtractor = (any: string): number => {
 
   value = value.replace('ab ', '')
 
-  value = value.replace(/[,.](\d\d)($|\s)/ig, 'D$1')
+  value = value.replace(/[,.](\d\d|\d)($|\s)/ig, 'D$1')
   value = value.replace(/[^\dD]/ig, '')
   value = value.replace(/[D]/ig, '.')
 
