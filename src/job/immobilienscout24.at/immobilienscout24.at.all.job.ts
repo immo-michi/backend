@@ -44,9 +44,8 @@ export class Immobilienscout24AtAllJob {
   public async execute(): Promise<boolean> {
     this.logger.log('extract all pages')
 
-
-    await this.processType('haus', 'haus-kaufen')
     await this.processType('grund', 'grundstueck-kaufen')
+    await this.processType('haus', 'haus-kaufen')
     await this.processType('wohnung', 'wohnung-kaufen')
 
     return false
