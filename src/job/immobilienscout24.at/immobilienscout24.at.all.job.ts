@@ -19,36 +19,32 @@ export class Immobilienscout24AtAllJob {
   @Cron('0 0 2 * * *', {
     timeZone: 'Europe/Vienna',
   })
-  public async cron(): Promise<boolean> {
+  public async cron(): Promise<void> {
     if (this.configService.get('DISABLE_IMPORT', false)) {
       this.logger.log('cron is disabled DISABLE_IMPORT')
       return
     }
 
-    return await this.execute()
+    await this.execute()
   }
 
   @Cron('0 0 3 * * *', {
     timeZone: 'Europe/Vienna',
   })
-  public async deleteOldCron(): Promise<boolean> {
+  public async deleteOldCron(): Promise<void> {
     // older than one week!
     const deleteBefore = new Date(Date.now() - 7 * 60 * 60 * 24 * 1000)
 
     // clean out all entries that are older than
     await this.hitService.deleteBefore(deleteBefore)
-
-    return false
   }
 
-  public async execute(): Promise<boolean> {
+  public async execute(): Promise<void> {
     this.logger.log('extract all pages')
 
     await this.processType('grund', 'grundstueck-kaufen')
     await this.processType('haus', 'haus-kaufen')
     await this.processType('wohnung', 'wohnung-kaufen')
-
-    return false
   }
 
   private async processType(type: string, urlPart: string): Promise<void> {

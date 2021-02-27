@@ -73,7 +73,8 @@ export class Immobilienscout24At {
           params: {
             URL
           }
-        }
+        },
+        fetchPolicy: 'no-cache',
       })
 
       return result.data
