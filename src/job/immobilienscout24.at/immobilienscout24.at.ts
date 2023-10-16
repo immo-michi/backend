@@ -149,7 +149,7 @@ export class Immobilienscout24At {
     hit.mainKeyFacts.forEach(fact => {
       property.values[fact.label] = fact.value
 
-      if (fact.label === 'Fläche') {
+      if (fact.label === 'Fläche' || fact.label === null && fact.value.includes('m²')) {
         property.area = numberExtractor(fact.value)
       }
     })
@@ -157,13 +157,19 @@ export class Immobilienscout24At {
     property.price = 0
 
     hit.priceKeyFacts.forEach(fact => {
-      property.values[fact.label || 'Preis'] = fact.value
+      let label = fact.label
 
-      if (!fact.label) {
+      if (!label && fact.value.includes('€/m²')) {
+        label = 'Preis pro Quadratmeter'
+      }
+
+      if (!label && fact.value.includes('€')) {
+        label = 'Preis'
         // assume this is the price!
         property.price = numberExtractor(fact.value)
-
       }
+
+      property.values[label] = fact.value
     })
 
     property.updated = new Date()
