@@ -32,28 +32,30 @@ export class Immobilienscout24AtJob {
     this.logger.log('extract first page')
 
     await this.processType('haus', 'haus-kaufen')
+    await this.processType('haus', 'haus-mieten', true)
     await this.processType('grund', 'grundstueck-kaufen')
     await this.processType('wohnung', 'wohnung-kaufen')
+    await this.processType('wohnung', 'wohnung-mieten', true)
 
     return false
   }
 
-  private async processType(type: string, urlPart: string): Promise<void> {
+  private async processType(type: string, urlPart: string, rental: boolean = false): Promise<void> {
     const urls = this.hitService.buildUrls(urlPart)
 
     for(const url of urls) {
       const result = await this.hitService.list(url)
 
-      await this.processHits(result.getDataByURL.results.hits, type)
+      await this.processHits(result.getDataByURL.results.hits, type, rental)
     }
   }
 
-  private async processHits(hits: Hit[], type: string): Promise<void> {
+  private async processHits(hits: Hit[], type: string, rental: boolean): Promise<void> {
     await Promise.all(
       hits
         .map(
           hit => this.hitService
-            .process(hit, type)
+            .process(hit, type, rental)
             .catch(e => this.logger.catch(e, `failed to process expose ${hit.exposeId}`))
         )
     )

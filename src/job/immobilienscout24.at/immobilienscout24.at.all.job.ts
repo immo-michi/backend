@@ -44,44 +44,46 @@ export class Immobilienscout24AtAllJob {
 
     await this.processType('grund', 'grundstueck-kaufen')
     await this.processType('haus', 'haus-kaufen')
+    await this.processType('haus', 'haus-mieten', true)
     await this.processType('wohnung', 'wohnung-kaufen')
+    await this.processType('wohnung', 'wohnung-mieten', true)
   }
 
-  private async processType(type: string, urlPart: string): Promise<void> {
+  private async processType(type: string, urlPart: string, rental: boolean = false): Promise<void> {
     const urls = this.hitService.buildUrls(urlPart)
 
     for(const url of urls) {
       try {
         const result = await this.hitService.list(url)
 
-        await this.processHits(result.getDataByURL.results.hits, type)
+        await this.processHits(result.getDataByURL.results.hits, type, rental)
 
         const otherUrls = [...result.getDataByURL.results.pagination.all]
         otherUrls.shift()
 
-        await this.processUrls(otherUrls, type)
+        await this.processUrls(otherUrls, type, rental)
       } catch (e) {
         this.logger.catch(e, `failed to process url ${url}`)
       }
     }
   }
 
-  private async processHits(hits: Hit[], type: string): Promise<void> {
+  private async processHits(hits: Hit[], type: string, rental: boolean): Promise<void> {
     await Promise.all(
       hits
         .map(
           hit => this.hitService
-            .process(hit, type)
+            .process(hit, type, rental)
             .catch(e => this.logger.catch(e, `failed to process expose ${hit.exposeId}`))
         )
     )
   }
 
-  private async processUrls(urls: string[], type: string): Promise<void> {
+  private async processUrls(urls: string[], type: string, rental: boolean): Promise<void> {
     for(const url of urls) {
       const result = await this.hitService.list(url)
 
-      await this.processHits(result.getDataByURL.results.hits, type)
+      await this.processHits(result.getDataByURL.results.hits, type, rental)
     }
   }
 }

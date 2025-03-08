@@ -10,6 +10,9 @@ export class PropertySearchFilterInput {
   @Field({ nullable: true })
   addedSince?: number
 
+  @Field({ nullable: true })
+  rental?: boolean
+
   @Field(() => [String], { nullable: true })
   type?: string[]
 

@@ -85,7 +85,7 @@ export class Immobilienscout24At {
     return null
   }
 
-  public async process(hit: Hit, type?: string): Promise<PropertyEntity> {
+  public async process(hit: Hit, type?: string, rental: boolean = false): Promise<PropertyEntity> {
     // load more information from page and extract "IS24AT.expose" json string!
     this.logger.log(`process expose ${hit.exposeId}`)
 
@@ -121,6 +121,7 @@ export class Immobilienscout24At {
       property.type = type
     }
 
+    property.rental = rental
     property.address = hit.addressString
     property.name = stripHtml(hit.headline).result
     property.link = `https://www.immobilienscout24.at${hit.links.targetURL}`

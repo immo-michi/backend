@@ -22,6 +22,9 @@ export class PropertyEntity {
   @Column({ nullable: true })
   description: string
 
+  @Column({ default: false })
+  rental?: boolean
+
   @Column({ nullable: true })
   type: string
 

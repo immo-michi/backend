@@ -37,6 +37,14 @@ export class PropertySearchService {
       })
     }
 
+    if (filter.rental === true || filter.rental === false) {
+      qb.andWhere(
+        'p.rental = :rental',
+      ).setParameters({
+        rental: filter.rental,
+      })
+    }
+
     if (filter.addedSince) {
       qb.andWhere(
         'p.created >= :addedSince',
